@@ -31,8 +31,15 @@ async def run_agents(input_data: MessageInput):
     if stored_state and "channel_values" in stored_state:
         # Continue from existing memory
         print(f"Resuming for user {input_data.user_id}")
+        channel_values = stored_state["channel_values"].copy()
+        message_history = channel_values["message_history"]
+        message_history.append(f"user resume: {input_data.user_id} and message: {input_data.message}")
+        updated_state = {"current_message": input_data.message,
+                        "message_history": message_history,
+                        "user_id": input_data.user_id}
+        graph_app.update_state(config, updated_state)
         result = graph_app.invoke(None, config)
-        print(f"result from memory: {result}")
+        print(f"result from memory+update: {result}")
 
     else:
         # Start fresh
